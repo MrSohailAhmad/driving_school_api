@@ -1,9 +1,12 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import colors from "colors";
+import express from "express";
 
-const express = require("express");
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 8080;
 
+app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
@@ -13,5 +16,5 @@ app.get("/home", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server are running on port ${port}`.toUpperCase().bgGreen);
 });
