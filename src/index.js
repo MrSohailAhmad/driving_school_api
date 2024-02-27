@@ -1,25 +1,21 @@
 // require("dotenv").config({ path: "./env" });
 import dotenv from "dotenv";
-import colors from "colors";
 import express from "express";
-import { DB_NAME } from "./constants.js";
 import connectDB from "./db/index.js";
-
+import { app } from "./app.js";
 dotenv.config({ path: "./env" });
+const PORT = process.env.PORT || 9000;
 
-const app = express();
-const port = process.env.PORT || 8080;
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server Are Runing on ${PORT}`.yellow);
+    });
+  })
+  .catch((err) => {
+    console.log("MONGO DB Connection Failed !!!", err);
+  });
 
-app.use(express.json());
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/home", (req, res) => {
-  res.send("This is Home");
-});
-
-connectDB();
 // (async () => {
 //   try {
 //     await mongoose.connect(`${process.env.MONGO_DB_URI}/${DB_NAME}`);
@@ -36,7 +32,3 @@ connectDB();
 //     console.log("ERROR:", error);
 //   }
 // })();
-
-app.listen(port, () => {
-  console.log(`Server are running on port ${port}`.toUpperCase().yellow);
-});
