@@ -1,1 +1,1 @@
-export const DB_NAME = "DRIVING_SCHOOL SYSTEM";
+export const DB_NAME = "DrivingSchool";

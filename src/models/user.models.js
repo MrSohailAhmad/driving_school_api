@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import colors from "colors";
 const userSchema = mongoose.Schema(
   {
     firstName: {
@@ -22,6 +24,7 @@ const userSchema = mongoose.Schema(
     mobileNo: {
       type: String,
       required: true,
+      unique: true,
     },
     address: {
       type: String,
@@ -34,10 +37,8 @@ const userSchema = mongoose.Schema(
       lowercase: true,
     },
     picture: {
-      path: {
-        type: String,
-        required: true,
-      },
+      type: String,
+      required: true,
     },
     isApproved: {
       type: Boolean,
@@ -61,10 +62,49 @@ const userSchema = mongoose.Schema(
       default: new Date(),
       required: true,
     },
+    refreshToken: {
+      type: String,
+    },
   },
   {
     timestamp: true,
   }
 );
 
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+  console.log("Password Hashed...".blud);
+  next();
+});
+
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateAccToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+      email: this.email,
+      userName: this.userName,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_SECRET_EXPIRY,
+    }
+  );
+};
+
+userSchema.methods.generateRefToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_SECRET_EXPIRY,
+    }
+  );
+};
 export const User = mongoose.model("User", userSchema);
